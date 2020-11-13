@@ -17,20 +17,17 @@ time_now =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 model_path = "./train_model/tensor_model/" #产生的模型名及路径
 submission_path = "./submission/tensor_submission/" #输出的预测文件名及路径
 
-def modeltrain(xdata,ydata,testing_features,testing_target):
-    training_features=xdata
-    training_target=ydata
-    #切分训练集为训练集和测试集
-    #再次切分训练集为训练集和验证集用于建模；这样，总共有三组样本：训练集，验证集和测试集
-    #主要是因为现在还不会tensorflow的交叉验证
-    #training_features,validation_features,training_target,validation_target = train_test_split(training_features,training_target)
+def modeltrain(xdata,ydata):
+    #分测试集
+    training_features,testing_features,training_target,testing_target = train_test_split(xdata,ydata)
+    #分验证集
+    training_features,validation_features,training_target,validation_target = train_test_split(training_features,training_target)
     #tensorflow2.0的神经网络
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Dense(input_shape=(56,)),
-        tf.keras.layers.Dense(16,),
+        tf.keras.layers.Dense(16,input_shape=(56,)),
         tf.keras.layers.Dense(16,activation='relu'),
         tf.keras.layers.Dense(16),
-        #tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dropout(0.5),
         tf.keras.layers.Dense(1, activation='sigmoid'),
     ])
     #keras的compile方法，定义损失函数、优化器和指标等
@@ -38,8 +35,8 @@ def modeltrain(xdata,ydata,testing_features,testing_target):
              loss='binary_crossentropy',
              metrics=[tf.keras.metrics.AUC()],
              ) #metrics输出正确率，它是一个列表
-    #fit
-    model.fit(training_features,training_target,validation_data=(testing_features,testing_target),epochs=500,batch_size=8,verbose=2)
+    #fit 带验证集
+    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=10,batch_size=32,verbose=2)
     #分好0-1
     predict_target_classes = (model.predict(testing_features) > 0.5).astype("int32")
     #没分0-1 输出的是概率
@@ -82,15 +79,12 @@ def modelout(model):
 def main():
     #读取数据
 
-    data_load_training = pd.read_csv("./data_download/x_train.csv",index_col=0)
-    data_load_training_label = pd.read_csv("./data_download/y_train_label.csv",index_col=0)
 
-    data_load_testing = pd.read_csv("./data_download/x_test.csv",index_col=0)
-    data_load_testing_label = pd.read_csv("./data_download/y_test_label.csv",index_col=0)
+    data_load_training = pd.read_csv("./data_download/X.csv",index_col=0)
+    data_load_training_label = pd.read_csv("./data_download/y.csv",index_col=0)
 
     #合并
     data_load_training["target"] =  data_load_training_label.values
-    data_load_testing["target"]  =  data_load_testing_label.values
 
 
     
@@ -98,10 +92,8 @@ def main():
     api = data_utils.data_utils_method()
     #训练集x y
     xdata,ydata = api.datachange(data_load_training)
-    #测试集x y
-    testing_features,testing_target = api.datachange(data_load_testing)
     #训练模型
-    model = modeltrain(xdata,ydata,testing_features,testing_target)
+    model = modeltrain(xdata,ydata)
     #modelout(model)
     print(r"Model Finished")
     print("*************************")
