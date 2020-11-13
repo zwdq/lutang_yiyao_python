@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import GridSearchCV
 import joblib
 #导入自己的api.py,里面共有两个方法datachange和datachange2，用于特征工程
 from api import data_utils
@@ -24,19 +25,16 @@ def modeltrain(xdata,ydata):
     training_features,validation_features,training_target,validation_target = train_test_split(training_features,training_target)
     #tensorflow2.0的神经网络
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Dense(8,input_shape=(56,)),
-        tf.keras.layers.Dense(8,activation='relu'),
-        tf.keras.layers.Dense(8),
-        tf.keras.layers.Dropout(0.5),
-        tf.keras.layers.Dense(1, activation='sigmoid'),
-    ])
+            tf.keras.layers.Dense(128,activation='relu',input_shape=(56,)),
+            tf.keras.layers.Dense(1, activation='sigmoid'),
+        ])
     #keras的compile方法，定义损失函数、优化器和指标等
     model.compile(optimizer='adam',
              loss='binary_crossentropy',
              metrics=[tf.keras.metrics.AUC()],
              ) #metrics输出正确率，它是一个列表
     #fit 带验证集
-    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=500,batch_size=32,verbose=2)
+    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=30,batch_size=32,verbose=2)
     #分好0-1
     predict_target_classes = (model.predict(testing_features) > 0.5).astype("int32")
     #没分0-1 输出的是概率
