@@ -34,7 +34,7 @@ def modeltrain(xdata,ydata):
              metrics=[tf.keras.metrics.AUC()],
              ) #metrics输出正确率，它是一个列表
     #fit 带验证集
-    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=300,batch_size=8,verbose=2)
+    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=3000,batch_size=8,verbose=2)
     #分好0-1
     predict_target_classes = (model.predict(testing_features) > 0.5).astype("int32")
     #没分0-1 输出的是概率
