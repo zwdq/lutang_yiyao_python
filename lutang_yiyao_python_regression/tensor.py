@@ -1,4 +1,4 @@
-##nohup python /root/lutang_yiyao_python/tensor.py >./logs/log.out 2>&1 &
+##nohup python /root/lutang_yiyao_python/lutang_yiyao_python_regression/tensor.py >./logs/log.out 2>&1 &
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -34,7 +34,7 @@ def modeltrain(xdata,ydata):
              #metrics=[tf.keras.metrics.MeanAbsolutePercentageError()]
              ) #metrics输出正确率，它是一个列表
     #fit 带验证集
-    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=10,batch_size=8,verbose=2)
+    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=100000,batch_size=8,verbose=2)
     
     #没分0-1 输出的是概率
     predict_target = model.predict(testing_features)
