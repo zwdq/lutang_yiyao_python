@@ -9,7 +9,6 @@ import joblib
 #导入自己的api.py,里面共有两个方法datachange和datachange2，用于特征工程
 from api import data_utils
 import time 
-time_now =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
 
 
 #设置
@@ -24,8 +23,8 @@ def modeltrain(xdata,ydata):
     training_features,validation_features,training_target,validation_target = train_test_split(xdata,ydata)
     #tensorflow2.0的神经网络
     model = tf.keras.models.Sequential([
-            tf.keras.layers.Dense(128,input_shape=(84,)),
-            tf.keras.layers.Dense(128,activation='relu'),
+            tf.keras.layers.Dense(1024,input_shape=(84,)),
+            tf.keras.layers.Dense(1024,activation='relu'),
             tf.keras.layers.Dense(1),
         ])
     #keras的compile方法，定义损失函数、优化器和指标等
@@ -34,7 +33,7 @@ def modeltrain(xdata,ydata):
              #metrics=[tf.keras.metrics.MeanAbsolutePercentageError()]
              ) #metrics输出正确率，它是一个列表
     #fit 带验证集
-    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=100000,batch_size=8,verbose=2)
+    model.fit(training_features,training_target,validation_data=(validation_features,validation_target),epochs=2000,batch_size=8,verbose=2)
     
     #没分0-1 输出的是概率
     predict_target = model.predict(testing_features)
@@ -43,6 +42,7 @@ def modeltrain(xdata,ydata):
 
     #输出的名字
     global output_name
+    time_now =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
     output_name = time_now + " mse " + str(round(mse,4)) + " "
 
     #打印准确率
